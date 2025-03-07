@@ -36,6 +36,8 @@
             border-radius: 8px;
             margin: 5px 0;
             max-width: 75%;
+            word-wrap: break-word;
+            white-space: pre-wrap; /* Ensures new lines are maintained */
         }
 
         .user-message {
@@ -50,19 +52,27 @@
             align-self: flex-start;
         }
 
+        pre {
+            background-color: #2b2c37;
+            color: #bdbecb;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
         .chat-container {
             position: fixed;
             bottom: 0;
             width: 100%;
             padding: 20px;
             box-sizing: border-box;
-            background-color: #0f1011; /* Added background color to prevent transparency */
-            z-index: 1000; /* Ensure input stays on top */
+            background-color: #0f1011;
+            z-index: 1000;
         }
 
         .group {
             display: flex;
-            line-height: 28px;
             align-items: center;
             position: relative;
             max-width: 800px;
@@ -91,14 +101,6 @@
 
         .input:hover {
             box-shadow: 0 0 0 2.5px #2f303d, 0px 0px 25px -15px #000;
-        }
-
-        .input:active {
-            transform: scale(0.95);
-        }
-
-        .input:focus {
-            box-shadow: 0 0 0 2.5px #2f303d;
         }
 
         .search-icon {
@@ -135,7 +137,6 @@
     </div>
 
     <script>
-        
         const socket = new WebSocket("wss://genai-production.up.railway.app/ws/test_user");
 
         socket.onmessage = function (event) {
@@ -162,7 +163,14 @@
             const chatBox = document.getElementById("chat-box");
             const msgDiv = document.createElement("div");
             msgDiv.className = "message " + className;
-            msgDiv.innerText = message;
+
+            // Replace triple backticks for code formatting
+            message = message.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+
+            // Replace **bold text** with <b>bold text</b>
+            message = message.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>");
+
+            msgDiv.innerHTML = message;
             chatBox.appendChild(msgDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
         }

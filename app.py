@@ -24,7 +24,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
 
             # Send entire conversation history to Gemini
             chat_history = "\n".join(user_conversations[user_id])
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            model = genai.GenerativeModel("gemini-2.0-flash")
             response = model.generate_content(chat_history)
 
             user_conversations[user_id].append(f"AI: {response.text}")
