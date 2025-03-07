@@ -1,4 +1,5 @@
 fastapi
-uvicorn
-google-generativeai
 websockets
+google-generativeai
+uvicorn
+pillow  # For handling images if needed
