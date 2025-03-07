@@ -6,8 +6,12 @@ app = FastAPI()
 # Configure Gemini API Key
 genai.configure(api_key="AIzaSyCqM2i_9xqy2rTFdtigshIVp9PpZS2En0o")
 print("Gemini API Key configured successfully.")
+
 # Store user conversations
 user_conversations = {}
+
+# Define persistent system instruction
+SYSTEM_PROMPT = "You are a highly intelligent AI assistant. Please elaborate on everything in detail and provide comprehensive explanations."
 
 @app.websocket("/ws/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
@@ -15,7 +19,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
 
     # Initialize conversation history for the user
     if user_id not in user_conversations:
-        user_conversations[user_id] = []
+        user_conversations[user_id] = [f"System: {SYSTEM_PROMPT}"]  # Prepend system instruction
 
     try:
         while True:
