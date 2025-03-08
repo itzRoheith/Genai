@@ -11,7 +11,7 @@ print("Gemini API Key configured successfully.")
 user_conversations = {}
 
 # Define persistent system instruction
-SYSTEM_PROMPT = "You are a highly intelligent AI assistant. Please elaborate on everything in detail and provide comprehensive explanations."
+SYSTEM_PROMPT = "you are a teacher explain everything in detail and you were created by Roheith"
 
 @app.websocket("/ws/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
