@@ -1,5 +1,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import google.generativeai as genai
+from pymongo import MongoClient
+import datetime
 
 app = FastAPI()
 
@@ -7,33 +9,42 @@ app = FastAPI()
 genai.configure(api_key="AIzaSyCqM2i_9xqy2rTFdtigshIVp9PpZS2En0o")
 print("Gemini API Key configured successfully.")
 
-# Store user conversations
-user_conversations = {}
-
-# Define persistent system instruction
-SYSTEM_PROMPT = "you are a teacher explain everything in detail and you were created by Roheith"
+# Connect to MongoDB (Replace with your MongoDB URI)
+MONGO_URI = "mongodb+srv://itzrth:Roheith1979@clus.ke3bg.mongodb.net/chat_database?retryWrites=true&w=majority"
+client = MongoClient(MONGO_URI)
+db = client["MS"]
+conversations_collection = db["msg"]
 
 @app.websocket("/ws/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
     await websocket.accept()
 
-    # Initialize conversation history for the user
-    if user_id not in user_conversations:
-        user_conversations[user_id] = [f"System: {SYSTEM_PROMPT}"]  # Prepend system instruction
-
     try:
         while True:
             data = await websocket.receive_text()
-            user_conversations[user_id].append(f"User: {data}")
 
-            # Send entire conversation history to Gemini
-            chat_history = "\n".join(user_conversations[user_id])
+            # Store user message in MongoDB
+            conversations_collection.insert_one({
+                "user_id": user_id,
+                "role": "user",
+                "message": data,
+                "timestamp": datetime.datetime.utcnow()
+            })
+
+            # Send query to Gemini API
             model = genai.GenerativeModel("gemini-2.0-flash")
-            response = model.generate_content(chat_history)
+            response = model.generate_content(data)
 
-            user_conversations[user_id].append(f"AI: {response.text}")
+            # Store AI response in MongoDB
+            conversations_collection.insert_one({
+                "user_id": user_id,
+                "role": "ai",
+                "message": response.text,
+                "timestamp": datetime.datetime.utcnow()
+            })
+
+            # Send response back to user
             await websocket.send_text(response.text)
-    
+
     except WebSocketDisconnect:
-        print(f"User {user_id} disconnected. Clearing chat history.")
-        del user_conversations[user_id]  # Delete conversation when user disconnects
+        print(f"User {user_id} disconnected.")

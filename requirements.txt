@@ -3,3 +3,4 @@ websockets
 google-generativeai
 uvicorn
 pillow  # For handling images if needed
+pymongo
