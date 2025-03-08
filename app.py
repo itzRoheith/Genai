@@ -11,7 +11,7 @@ genai.configure(api_key="AIzaSyCqM2i_9xqy2rTFdtigshIVp9PpZS2En0o")
 # MongoDB Connection
 MONGO_URI = "mongodb+srv://itzrth:Roheith1979@clus.ke3bg.mongodb.net/chat_database?retryWrites=true&w=majority"
 client = MongoClient(MONGO_URI, tls=True, tlsAllowInvalidCertificates=True)
-db = client["chat_database"]  # Main Database
+db = client["Genai"]  # Main Database
 
 @app.websocket("/ws/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
